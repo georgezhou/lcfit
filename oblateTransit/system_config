@@ -1,0 +1,10 @@
+0.1  # mean radius of the planet, Rmean/R*
+0.1  # flattening, f=(Req-Rpol)/Req
+45.0  # angle between planet's trajectory and its major axis, degrees
+8.924  # semi-major axis of the planet, a/R*
+2.218573  # orbital period, days
+90   # inclination, in degrees
+0.076  # limb darkening coefficients, u1
+0.034  # limb darkening coefficients, u2
+500  # number of phase points in the resulting light curve
+0.025  # phase interval, phi = t/T
