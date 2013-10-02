@@ -18,6 +18,8 @@ def oblateness_func(hjd,t0,period,rmean,f,alpha,sma,inc,u1,u2):
 
     phase = (hjd-t0)/period
     phase = phase - np.floor(phase)
+    ind = phase > 0.5
+    phase[ind] -= 1.0
 
     alpha = alpha * np.pi / 180.
     inc = inc * np.pi / 180.
@@ -37,6 +39,6 @@ def oblateness_func(hjd,t0,period,rmean,f,alpha,sma,inc,u1,u2):
     #phi=-1*percent+dphi*np.arange(Npoint)
     #call
     obl.relativeFlux(phase,dflux)
-    #plt.plot(phi,dflux/totalFlux)
+    #plt.plot(phase,dflux/totalFlux)
     #plt.show()
-    return dflux
+    return dflux/totalFlux

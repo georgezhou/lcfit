@@ -241,6 +241,26 @@ for n in range(len(lclist)):
 ####################
 phase,flux,err,model = array(phase),array(flux),array(err),array(model)
 
+# ### Test create data
+# noise = []
+# import random
+# for i in phase:
+#     noise.append(random.gauss(1,0.00005))
+# noise = array(noise)
+# #noise = ones(len(phase))
+
+# o = open("temp.txt","w")
+# functions.write_table(transpose([phase*110.321612962+1030.3645,model*noise,ones(len(phase))]),o)
+# o.close()
+
+# d = loadtxt("temp.txt")
+# plt.scatter(phase,d[:,1])
+# plt.show()
+
+# sys.exit()
+
+### #### ###
+
 x1,x2 = get_maxmin(phase)
 
 plt.figure(figsize=(8,10))
@@ -270,7 +290,7 @@ plt.subplot(212)
 residual = flux-model
 
 
-residual_mvavg = smooth(residual,window_len=10*(len(lclist)),window='flat')
+residual_mvavg = smooth(residual,window_len=30*(len(lclist)),window='flat')
 #residual_mvavg = smooth(residual,window_len=60,window='flat')
 
 plt.scatter(phase,residual,s=1,color="k")

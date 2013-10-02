@@ -147,7 +147,7 @@ def plot_folder(ax1,ax2,pltcolor):
     y = folder_params[ax2][:nlen]
     z = folder_prob[:nlen]
 
-    binarray,xaxis,yaxis = bin2d(30,x,y,z)
+    binarray,xaxis,yaxis = bin2d(15,x,y,z)
 
     levels = [0.607,0.135]
     #plt.hexbin(y,x,bins=25,cmap="binary",vmax=5)

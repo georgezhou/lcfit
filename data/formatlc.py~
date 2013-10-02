@@ -1,0 +1,47 @@
+from numpy import *
+import matplotlib.pyplot as plt
+import functions,sys
+
+def cutout_regions(data,input_regions):
+    newdata = []
+    for region in input_regions:
+        for i in data:
+            if i[0] > region[0] and i[0] < region[1]:
+                newdata.append(i)
+    newdata = array(newdata)
+    return newdata
+    
+
+data = loadtxt("kplr006603043-2011145075126_slc.tab")
+param = transpose(loadtxt("param.txt"))
+
+data_midtime = median(data[:,0])
+epoch = round((data_midtime-param[0])/ param[1])
+midtime = param[0]+epoch*param[1]
+tdur = param[2]/24.
+oot = [[midtime-tdur*4,midtime-tdur*0.6],[midtime+tdur*0.6,midtime+tdur*4]]
+transit = [[midtime-tdur*1.,midtime+tdur*1.]]
+
+
+oot = cutout_regions(data,oot)
+plt.scatter(oot[:,0],oot[:,1],s=1)
+oot_fit = polyfit(oot[:,0],oot[:,1],6)
+x = arange(min(oot[:,0]),max(oot[:,0]),0.05)
+oot_plot = polyval(oot_fit,x)
+plt.plot(x,oot_plot)
+plt.show()
+
+data = cutout_regions(data,transit)
+data[:,1] = data[:,1] - polyval(oot_fit,data[:,0])
+
+mag = data[:,1]
+flux = 10**((mag-median(mag))/-2.5)
+
+o = open("1.dat","w")
+output = [data[:,0],flux,data[:,2]]
+output = transpose(output)
+functions.write_table(output,o)
+o.close()
+
+plt.scatter(data[:,0],flux)
+plt.show()

@@ -204,6 +204,16 @@ def lc_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_value
     chisq = 0
     npoints = 0
 
+    rmeanrstar = rratio_i
+    rratio_i = sqrt(1-planet_f_i)*rmeanrstar
+
+    sma = rsum_i/(1+rmeanrstar)
+    sma = 1/sma
+
+    rsum_mean = rsum_i
+    rsum_i = (1/sma) * (1+rratio_i)
+    #print rsum_i
+
     ### Input for transit model 
     # ! V(1) = surface brightness ratio    V(15) = third light
     # ! V(2) = sum of fractional radii     V(16) = phase correction
@@ -246,7 +256,6 @@ def lc_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_value
 
         t0_i = t0_i + optimize.fmin(fit_t0,0,disp=0)
 
-    #rratio_i = rratio_i * (1-fratio_i)
 
     model_input = array([edepth_i,rsum_i,rratio_i,ld1_coeff[0],0,i_0_i,ecosw_i,esinw_i,0,0,0,0,0,0,0,0,0,1,period_i,t0_i,ld2_coeff[0],0])
 
@@ -286,9 +295,24 @@ def lc_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_value
 
 
     ### Apply planet oblation
-    sma = rsum_i/(1+rratio_i)
-    sma = 1/sma
-    model = model + oblateness_func.oblateness_func(hjd_i,t0_i,period_i,rratio_i,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])
+
+    model = model - oblateness_func.oblateness_func(hjd_i,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])
+    #oblate_model = oblateness_func.oblateness_func(hjd_i,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])
+    #plt.plot((hjd_i-t0_i)/period_i,oblate_model)
+    #plt.show()
+    #sys.exit()
+
+
+    # print rmeanrstar,rratio_i
+
+    # ### Check circ model
+    # model_input = array([edepth_i,rsum_mean,rmeanrstar,ld1_coeff[0],0,i_0_i,ecosw_i,esinw_i,0,0,0,0,0,0,0,0,0,1,period_i,t0_i,ld2_coeff[0],0])
+    # circ_model = transitmodel(model_input,hjd_i,1.,0.,cadence)
+
+    # plt.plot(hjd_i,model-circ_model)
+    # plt.show()
+
+    # sys.exit()
 
 
     ### Apply offset
@@ -458,8 +482,8 @@ def mcmc_loop(initial_params,default_params,free_param_names,fixed_param_names,f
     nburn = int(eval(functions.read_config_file("NBURN")))
     nthreads = 1
 
-    param_tolerance_names = ["ecosw","esinw","period","t0","beta","fratio","theta","edepth","phi","planet_alpha","planet_f"]
-    param_tolerances = [0.0001,0.3,0.00000001,0.000001,0.1,0.001,0.1,0.3,0.1,0.3,0.1]
+    param_tolerance_names = ["ecosw","esinw","period","t0","beta","planet_f","theta","edepth","phi","planet_alpha","planet_f"]
+    param_tolerances = [0.0001,0.3,0.00000001,0.000001,0.1,0.001,0.1,0.3,0.1,0.3,0.3]
     default_tolerance = 0.0001
 
     chisq_log,stellar_params,tested_params= [],[],[]

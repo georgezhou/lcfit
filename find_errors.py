@@ -242,6 +242,7 @@ for i in range(len(axes_tested)):
 
     print axes_tested[i],best_param[i],xmid,xmin-xmid,xmax-xmid
     #best_param.append(xmid)
+    best_param[i] = xmid
 
     plt.plot(x,fit,"k-")    
     plt.xlabel(axes_tested[i])

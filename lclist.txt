@@ -1,2 +1,1 @@
-data/0_SC.dat
-data/1_SC.dat
+data/transit_0.3_45.0
