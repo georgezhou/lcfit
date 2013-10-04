@@ -6,9 +6,9 @@ LC_LD2 [0.3]
 LC_LD2_ERR [0.5]
 
 PERIOD 100.
-PERIOD_ERR 0.0001
+PERIOD_ERR 0
 
-T0 0.0
+T0 0.5
 T0_ERR 0.002
 
 RSUM 0.02
@@ -51,10 +51,10 @@ ROTP_ERR 0
 ### Planet oblateness parameters
 
 PLANET_F 0.1
-PLANET_F_ERR 0.3
+PLANET_F_ERR 0.1
 
-PLANET_ALPHA 90.
-PLANET_ALPHA_ERR 100.
+PLANET_ALPHA 45.
+PLANET_ALPHA_ERR 50.
 
 ### Fudge parameter to align long and short cadence t0
 

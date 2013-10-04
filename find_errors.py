@@ -216,37 +216,40 @@ def fitsmooth(x,y,box):
     return x,f
 
 for i in range(len(axes_tested)):
-    plt.clf()
-    #plt.scatter(tested[i],prob)
-    x,y = bin(500,tested[i],prob)
-    plt.plot(x,y,"r-")    
+    try:
+        plt.clf()
+        #plt.scatter(tested[i],prob)
+        x,y = bin(500,tested[i],prob)
+        plt.plot(x,y,"r-")    
 
-    if axes_tested[i] in ["ecosw","esinw","rratio","rsum","t0","k0","period","q0","i_0"]:
-        x,fit = fitsmooth(x,y,5)
-    else:
-        x,fit = fitsmooth(x,y,10)
+        if axes_tested[i] in ["ecosw","esinw","rratio","rsum","t0","k0","period","q0","i_0"]:
+            x,fit = fitsmooth(x,y,5)
+        else:
+            x,fit = fitsmooth(x,y,10)
 
-    xmin,xmax = find_edges(x,fit)
-    plt.axvline(x=xmin)
-    plt.axvline(x=xmax)
+        xmin,xmax = find_edges(x,fit)
+        plt.axvline(x=xmin)
+        plt.axvline(x=xmax)
 
-    xmid = x[0]
-    for j in range(len(x)):
-        if fit[j] == max(fit):
-            xmid = x[j]
-            break
+        xmid = x[0]
+        for j in range(len(x)):
+            if fit[j] == max(fit):
+                xmid = x[j]
+                break
 
-    #xmid = best_param[i]
+        #xmid = best_param[i]
 
-    plt.axvline(x=xmid)
+        plt.axvline(x=xmid)
 
-    print axes_tested[i],best_param[i],xmid,xmin-xmid,xmax-xmid
-    #best_param.append(xmid)
-    best_param[i] = xmid
+        print axes_tested[i],best_param[i],xmid,xmin-xmid,xmax-xmid
+        #best_param.append(xmid)
+        best_param[i] = xmid
 
-    plt.plot(x,fit,"k-")    
-    plt.xlabel(axes_tested[i])
-    plt.show()
+        plt.plot(x,fit,"k-")    
+        plt.xlabel(axes_tested[i])
+        plt.show()
+    except ValueError:
+        pass
 
 best_param = [axes_tested,best_param]
 f = open("best_param_mcmc","w")

@@ -147,11 +147,11 @@ def plot_folder(ax1,ax2,pltcolor):
     y = folder_params[ax2][:nlen]
     z = folder_prob[:nlen]
 
-    binarray,xaxis,yaxis = bin2d(15,x,y,z)
+    binarray,xaxis,yaxis = bin2d(30,x,y,z)
 
     levels = [0.607,0.135]
-    #plt.hexbin(y,x,bins=25,cmap="binary",vmax=5)
-    plt.scatter(y,x,s=0.1)
+    plt.hexbin(y,x,bins=25,cmap="binary",vmax=3)
+    #plt.scatter(y,x,s=0.1)
     plt.contour(yaxis,xaxis,binarray,levels,colors=pltcolor)
 
     #plt.scatter(best_params[ax2],best_params[ax1],s=100,color=pltcolor,marker="+")
@@ -168,18 +168,35 @@ def get_index(pname):
 
 plt.figure(figsize=(12,8))
 ### Plot rratio vs rsum
+# plt.subplot(221)
+# plt.title("f=0.1, alpha=0")
+# plot_folder(get_index("rratio"),get_index("rsum"),"r")
+# plt.xlabel("rsum")
+# plt.ylabel("rratio")
+# #plt.show()
+
+### Plot lc_ld1 vs planet_f
 plt.subplot(221)
-plot_folder(get_index("rratio"),get_index("rsum"),"r")
-plt.xlabel("rsum")
-plt.ylabel("rratio")
+plt.title("f=0.1, alpha=0")
+plot_folder(get_index("planet_f"),get_index("lc_ld1"),"r")
+plt.xlabel("lc_ld1")
+plt.ylabel("planet_f")
 #plt.show()
 
-### Plot rratio vs i0
+# ### Plot rratio vs i0
+# plt.subplot(222)
+# plot_folder(get_index("i_0"),get_index("rratio"),"r")
+# plt.xlabel("rratio")
+# plt.ylabel("i0")
+# #plt.show()
+
+### Plot lc_ld2 vs planet_f
 plt.subplot(222)
-plot_folder(get_index("i_0"),get_index("rratio"),"r")
-plt.xlabel("rratio")
-plt.ylabel("i0")
+plot_folder(get_index("planet_f"),get_index("lc_ld2"),"r")
+plt.xlabel("lc_ld2")
+plt.ylabel("planet_f")
 #plt.show()
+
 
 ### Plot planet_f planet_alpha
 plt.subplot(223)

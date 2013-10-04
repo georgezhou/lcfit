@@ -265,6 +265,7 @@ x1,x2 = get_maxmin(phase)
 
 plt.figure(figsize=(8,10))
 
+
 ### Sort in phase
 data = transpose([phase,flux,err,model])
 data = functions.sort_array(data,0)
@@ -273,6 +274,7 @@ phase,flux,err,model = transpose(data)
 ### Plot data
 plt.clf()
 plt.subplot(211)
+plt.title("f=0.1, alpha=0")
 
 plt.scatter(phase,flux,s=1,color="k")
 plt.scatter(phase+1,flux,s=1,color="k")
@@ -305,6 +307,8 @@ plt.plot(phase+1,residual_mvavg,"b-")
 plt.axhline(y=0,color="r")
 
 plt.xlim(x1,x2)
+
+
 plt.show()
 
 

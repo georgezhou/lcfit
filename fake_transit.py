@@ -20,7 +20,7 @@ gconst = 6.67*10**(-11)
 ld1_coeff = [0.25]
 ld2_coeff = [0.30]
 period_i = 100.0
-t0_i = 0.0
+t0_i = 0.5
 rsum_i = 0.02
 rratio_i = 0.1
 i_0_i = 89.5
@@ -32,15 +32,15 @@ fratio_i = 0.0
 theta_i = 0.0001
 phi_i = 0.0
 Protot_i = 100000.
-planet_f_i = 0.3
-planet_alpha_i = 45.
+planet_f_i = 0.1
+planet_alpha_i = 45.0
 
 mstar = 1.0*msun
 rstar = 1.0*rsun
 
 
 cadence = "short"
-hjd_i = arange(-0.6,0.6,1.0/(24.*60.))
+hjd_i = arange(t0_i-0.6,t0_i+0.6,1.0/(24.*60.))
 
 
 
