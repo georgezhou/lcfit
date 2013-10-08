@@ -274,7 +274,7 @@ phase,flux,err,model = transpose(data)
 ### Plot data
 plt.clf()
 plt.subplot(211)
-plt.title("f=0.1, alpha=0")
+plt.title("f=0.1, alpha=45")
 
 plt.scatter(phase,flux,s=1,color="k")
 plt.scatter(phase+1,flux,s=1,color="k")

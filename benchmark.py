@@ -3,8 +3,6 @@ import sys
 import functions
 from fitting_functions import *
 from numpy import *
-import matplotlib.pyplot as plt
-from scipy import optimize
 import random
 
 ### Global constants
@@ -32,15 +30,16 @@ fratio_i = 0.0
 theta_i = 0.0001
 phi_i = 0.0
 Protot_i = 100000.
-planet_f_i = 0.0
-planet_alpha_i = 0.0
+planet_f_i = 0.05
+planet_alpha_i = 45.0
 
 mstar = 1.0*msun
 rstar = 1.0*rsun
 
 
 cadence = "short"
-hjd_i = arange(t0_i-0.6,t0_i+0.6,1.0/(24.*60.))
+#hjd_i = arange(t0_i-0.6,t0_i+0.6,1.0/(24.*60.))
+hjd_i = arange(0,20,1.0/(24.*60.))
 
 
 
@@ -160,10 +159,3 @@ model += gnoise
 
 data = transpose([hjd_i,model,ones(len(hjd_i))])
 
-o = open("data/transitgauss_"+str(planet_f_i)+"_"+str(planet_alpha_i),"w")
-functions.write_table(data,o)
-o.close()
-
-
-plt.scatter(hjd_i,model,s=0.1)
-plt.show()

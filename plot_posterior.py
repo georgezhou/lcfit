@@ -177,7 +177,7 @@ plt.figure(figsize=(12,8))
 
 ### Plot lc_ld1 vs planet_f
 plt.subplot(221)
-plt.title("f=0.1, alpha=0")
+plt.title("f=0.1, alpha=45")
 plot_folder(get_index("planet_f"),get_index("lc_ld1"),"r")
 plt.xlabel("lc_ld1")
 plt.ylabel("planet_f")

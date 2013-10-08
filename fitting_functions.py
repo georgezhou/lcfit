@@ -272,7 +272,7 @@ def lc_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_value
     phase = (hjd_i-t0_i)/period_i
     phase = phase - floor(phase)
 
-    if min(phase) < 0.05 or max(phase)>0.95:
+    if min(phase) < 0.05 or max(phase)>0.95 and fratio > 0:
 
         if cadence == "short":
             obliq_model = obliquity(hjd_i,t0_i,beta_i,fratio_i,theta_i,phi_i,Protot_i,b,a,period_i,rstar,mstar)
@@ -296,7 +296,22 @@ def lc_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_value
 
     ### Apply planet oblation
 
-    model = model - oblateness_func.oblateness_func(hjd_i,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])
+
+    ### Apply planet oblation
+
+    if min(phase) < 0.05 or max(phase)>0.95 and planet_f_i > 0:
+        if cadence == "short":
+            model = model - oblateness_func.oblateness_func(hjd_i,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])
+
+        else:
+            oblate_model = []
+            for datapoint in hjd_i:
+                datapoint = arange(datapoint-0.0104,datapoint+0.0104,0.00208)
+                oblate_model.append(mean(oblateness_func.oblateness_func(datapoint,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])))
+
+            oblate_model = array(oblate_model)
+            model = model - oblate_model
+
     #oblate_model = oblateness_func.oblateness_func(hjd_i,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])
     #plt.plot((hjd_i-t0_i)/period_i,oblate_model)
     #plt.show()
@@ -483,7 +498,7 @@ def mcmc_loop(initial_params,default_params,free_param_names,fixed_param_names,f
     nthreads = 1
 
     param_tolerance_names = ["ecosw","esinw","period","t0","beta","planet_f","theta","edepth","phi","planet_alpha","planet_f"]
-    param_tolerances = [0.0001,0.3,0.00000001,0.000001,0.1,0.001,0.1,0.3,0.1,0.3,0.3]
+    param_tolerances = [0.0001,0.3,0.00000001,0.000001,0.1,0.001,0.1,0.3,0.1,0.5,0.5]
     default_tolerance = 0.0001
 
     chisq_log,stellar_params,tested_params= [],[],[]
