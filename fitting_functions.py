@@ -16,15 +16,15 @@ import Zeipel
 import warnings
 warnings.filterwarnings('ignore')
 
-### Compile shared transit library
-os.system("rm jktebop_lib.so")
-os.system("gfortran jktebop_lib.f -ffree-form -fpic -shared -o jktebop_lib.so")
+# ### Compile shared transit library
+# os.system("rm jktebop_lib.so")
+# os.system("gfortran jktebop_lib.f -ffree-form -fpic -shared -o jktebop_lib.so")
 jktebop = cdll.LoadLibrary("./jktebop_lib.so")
 
-### Compile and import oblateTransit
-os.chdir("oblateTransit")
-os.system("make")
-os.chdir("..")
+# ### Compile and import oblateTransit
+# os.chdir("oblateTransit")
+# os.system("make")
+# os.chdir("..")
 sys.path.append("oblateTransit")
 import oblateness_func
 
@@ -45,6 +45,10 @@ mstar_err = eval(functions.read_config_file("MSTAR_ERR"))*msun
 
 rhostar_master = eval(functions.read_config_file("RHOSTAR"))
 rhostar_err = eval(functions.read_config_file("RHOSTAR_ERR"))
+
+mcmc_chisq_log = []
+mcmc_tested_params = []
+
 
 def calculate_rstar(mstar,rhostar):
     rstar = (mstar/(rhostar*(4./3.)*pi))**(1./3.)
@@ -312,23 +316,6 @@ def lc_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_value
             oblate_model = array(oblate_model)
             model = model - oblate_model
 
-    #oblate_model = oblateness_func.oblateness_func(hjd_i,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])
-    #plt.plot((hjd_i-t0_i)/period_i,oblate_model)
-    #plt.show()
-    #sys.exit()
-
-
-    # print rmeanrstar,rratio_i
-
-    # ### Check circ model
-    # model_input = array([edepth_i,rsum_mean,rmeanrstar,ld1_coeff[0],0,i_0_i,ecosw_i,esinw_i,0,0,0,0,0,0,0,0,0,1,period_i,t0_i,ld2_coeff[0],0])
-    # circ_model = transitmodel(model_input,hjd_i,1.,0.,cadence)
-
-    # plt.plot(hjd_i,model-circ_model)
-    # plt.show()
-
-    # sys.exit()
-
 
     ### Apply offset
     x0 = [median(flux_i)]
@@ -419,6 +406,8 @@ def calc_master_chisq(initial_params,default_params,free_param_names,fixed_param
 
 def calc_probability(initial_params,default_params,free_param_names,fixed_param_names,fixed_param_values,prior_params,prior_mean,prior_std,prior_func,lc,chisq_base,plot_pdf,cadence):
 
+    global mcmc_chisq_log,mcmc_tested_params
+
     initial_params = array(initial_params)*array(default_params)+array(default_params)
 
     chisq = 0
@@ -458,21 +447,23 @@ def calc_probability(initial_params,default_params,free_param_names,fixed_param_
     
     if functions.isnan(prob):
 
-        tested_params = [list(initial_params)]
-        chisq_log = [[chisq]]
+        tested_params = list(initial_params)
+        chisq_log = [chisq]
 
+        mcmc_chisq_log.append(chisq_log)
+        mcmc_tested_params.append(tested_params)
 
-        f = open("test","w")
-        functions.write_table(tested_params,f)
-        f.close()
-        os.system("cat test >> mcmc_tested_params")
+        # f = open("test","w")
+        # functions.write_table(tested_params,f)
+        # f.close()
+        # os.system("cat test >> mcmc_tested_params")
 
-        f = open("test","w")
-        functions.write_table(chisq_log,f)
-        f.close()
-        os.system("cat test >> mcmc_chisq_log")
+        # f = open("test","w")
+        # functions.write_table(chisq_log,f)
+        # f.close()
+        # os.system("cat test >> mcmc_chisq_log")
 
-    print prob
+    #print prob
     return prob
 
 def mcmc_loop(initial_params,default_params,free_param_names,fixed_param_names,fixed_param_values,prior_params,prior_mean,prior_std,prior_func,lc,plot_pdf,cadence):
@@ -480,6 +471,8 @@ def mcmc_loop(initial_params,default_params,free_param_names,fixed_param_names,f
     import random
 
     global chisq_log,tested_params
+    global mcmc_chisq_log,mcmc_tested_params
+    mcmc_chisq_log,mcmc_tested_params = [],[]
     
     ### Run an intial round to get baseline chisq
 
@@ -541,11 +534,11 @@ def mcmc_loop(initial_params,default_params,free_param_names,fixed_param_names,f
                 master_pos.append(list(position[i]))
 
 
-    print "iteration finished"
+    #print "iteration finished"
         
-    print best_pos
+    #print best_pos
 
-    return array(best_pos)
+    return mcmc_chisq_log,mcmc_tested_params
 
 
 def inflate_errors(x0,free_param_names,free_param_vals,fixed_param_names,fixed_param_vals,lc,cadence):
@@ -616,9 +609,9 @@ def inflate_errors(x0,free_param_names,free_param_vals,fixed_param_names,fixed_p
             return NaN
 
     s0 = 1.
-    s0 = optimize.fmin(minfunc,s0,args=(flux_i,fluxerr_i,model,df))
+    s0 = optimize.fmin(minfunc,s0,args=(flux_i,fluxerr_i,model,df),disp=0)
     s0 = s0[0]
-    print "inflating errors by factor of ",s0
+    #print "inflating errors by factor of ",s0
     fluxerr_i = fluxerr_i*s0
 
     lc[:,2] = fluxerr_i
