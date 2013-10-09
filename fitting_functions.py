@@ -623,3 +623,209 @@ def inflate_errors(x0,free_param_names,free_param_vals,fixed_param_names,fixed_p
 
     lc[:,2] = fluxerr_i
     return lc
+
+def manual_lcfit(initial_params,free_param_names,fixed_param_names,fixed_param_values,lc,cadence):
+    #print initial_params
+    import random
+    from matplotlib.widgets import Slider
+    #from pylab import axes
+    ax = plt.subplot(111)
+    plt.subplots_adjust(left=0.1, bottom=0.25)
+
+    if sum(initial_params)!=0:
+        mstar = random.gauss(mstar_master,mstar_err)
+        rhostar = random.gauss(rhostar_master,rhostar_err)
+        rstar = calculate_rstar(mstar,rhostar)
+    else:
+        mstar = mstar_master
+        rstar = rstar_master
+    
+    global period_i,t0_i,rsum_i,rratio_i,i_0_i,ld1_i,ld2_i,tdiff_i,edepth_i,planet_f_i,planet_alpha_i
+    ### Give dummy values to avoid error
+    [period_i,t0_i,rsum_i,rratio_i,i_0_i,ld1_i,ld2_i,tdiff_i,edepth_i,planet_f_i,planet_alpha_i] = [1,1,1,1,1,1,1,1,1,1,1]
+
+    #offsets = []
+    ld1_coeff = []
+    ld2_coeff = []
+    ### Set parameter names
+    for i in range(len(free_param_names)):
+        globals()[free_param_names[i]+"_i"] = initial_params[i]
+
+        if free_param_names[i] == "lc_ld1":
+            ld1_coeff.append(initial_params[i])
+        if free_param_names[i] == "lc_ld2":
+            ld2_coeff.append(initial_params[i])
+
+    for i in range(len(fixed_param_names)):
+        globals()[fixed_param_names[i]+"_i"] = fixed_param_values[i]
+
+        if fixed_param_names[i] == "lc_ld1":
+            ld1_coeff.append(fixed_param_values[i])
+        if fixed_param_names[i] == "lc_ld2":
+            ld2_coeff.append(fixed_param_values[i])
+
+    t0_i = t0_i + t0_global
+
+    if cadence == "short":
+        t0_i = t0_i + tdiff_i
+
+    def create_model(rratio_i,rsum_i,i_0_i):
+        global t0_i
+
+        rmeanrstar = rratio_i
+        rratio_i = sqrt(1-planet_f_i)*rmeanrstar
+
+        sma = rsum_i/(1+rmeanrstar)
+        sma = 1/sma
+
+        rsum_mean = rsum_i
+        rsum_i = (1/sma) * (1+rratio_i)
+        #print rsum_i
+
+        ### Input for transit model 
+        # ! V(1) = surface brightness ratio    V(15) = third light
+        # ! V(2) = sum of fractional radii     V(16) = phase correction
+        # ! V(3) = ratio of stellar radii      V(17) = light scaling factor
+        # ! V(4) = linear LD for star A        V(18) = integration ring size (deg)
+        # ! V(5) = linear LD for star B        V(19) = orbital period (days)
+        # ! V(6) = orbital inclination         V(20) = ephemeris timebase (days)
+        # ! V(7) = e cos(omega) OR ecentricity V(21) = nonlinear LD for star A
+        # ! V(8) = e sin(omega) OR omega       V(22) = nonlinear LD for star B
+        # ! V(9) = gravity darkening 1         
+        # ! V(10)= gravity darkening 2         
+        # ! V(11) = primary reflected light    
+        # ! V(12) = secondary reflected light  
+        # ! V(13) = stellar mass ratio        
+        # ! V(14) = tidal lead/lag angle (deg)
+
+        hjd_i,flux_i,fluxerr_i = lc[:,0],lc[:,1],lc[:,2]
+
+        if free_t0 == "true":
+
+            ### Fit for t0
+            def fit_t0(t0_trial):
+                t0_trial = t0_i + t0_trial
+
+                model_input = array([edepth_i,rsum_i,rratio_i,ld1_coeff[0],0,i_0_i,ecosw_i,esinw_i,0,0,0,0,0,0,0,0,0,1,period_i,t0_trial,ld2_coeff[0],0])
+
+                #print len(model_input),"model_input_length"
+                model = transitmodel(model_input,hjd_i,1.,0.,cadence)
+
+                ### Apply offset
+                x0 = [median(flux_i)]
+                def minfunc(x0):
+                    flux_ii = flux_i + x0[0]
+                    chisq_i =  sum(((flux_ii-model)/fluxerr_i)**2)
+                    return chisq_i
+
+                x0 = optimize.fmin(minfunc,x0,disp=0)
+                rms = sum(((flux_i + x0[0] - model)/fluxerr_i)**2)
+                return rms
+
+            t0_i = t0_i + optimize.fmin(fit_t0,0,disp=0)
+
+
+        model_input = array([edepth_i,rsum_i,rratio_i,ld1_coeff[0],0,i_0_i,ecosw_i,esinw_i,0,0,0,0,0,0,0,0,0,1,period_i,t0_i,ld2_coeff[0],0])
+
+        model = transitmodel(model_input,hjd_i,1.,0.,cadence)
+        #plt.plot(hjd_i,model)
+
+        ### Apply obliquity
+        rplanet = rratio_i*rstar
+        a = (rplanet+rstar)/rsum_i
+        b = a * cos(i_0_i*pi/180.)
+
+
+        phase = (hjd_i-t0_i)/period_i
+        phase = phase - floor(phase)
+
+        if min(phase) < 0.05 or max(phase)>0.95 and fratio > 0:
+
+            if cadence == "short":
+                obliq_model = obliquity(hjd_i,t0_i,beta_i,fratio_i,theta_i,phi_i,Protot_i,b,a,period_i,rstar,mstar)
+            else:
+                obliq_model = []
+                for datapoint in hjd_i:
+                    datapoint = arange(datapoint-0.0104,datapoint+0.0104,0.00208)
+                    #datapoint = arange(datapoint-0.0104,datapoint+0.0104,0.0005)
+
+                    obliq_model.append(mean(obliquity(datapoint,t0_i,beta_i,fratio_i,theta_i,phi_i,Protot_i,b,a,period_i,rstar,mstar)))
+
+                obliq_model = array(obliq_model)
+
+            model = (model-max(model))*(1-fratio_i)*obliq_model+1
+
+        ### Apply planet oblation
+
+        if min(phase) < 0.05 or max(phase)>0.95 and planet_f_i > 0:
+            if cadence == "short":
+                model = model - oblateness_func.oblateness_func(hjd_i,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])
+
+            else:
+                oblate_model = []
+                for datapoint in hjd_i:
+                    datapoint = arange(datapoint-0.0104,datapoint+0.0104,0.00208)
+                    oblate_model.append(mean(oblateness_func.oblateness_func(datapoint,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])))
+
+                oblate_model = array(oblate_model)
+                model = model - oblate_model
+
+        ### Apply offset
+        x0 = [median(flux_i)]
+        def minfunc(x0):
+            flux_ii = flux_i + x0[0]
+            chisq_i =  sum(((flux_ii-model)/fluxerr_i)**2)
+            return chisq_i
+
+        x0 = optimize.fmin(minfunc,x0,disp=0)
+        flux_i = flux_i + x0[0]
+
+        model_i = model
+
+
+        Mt=2*pi*((hjd_i-t0_i)/period_i - floor((hjd_i-t0_i)/period_i))
+
+        return Mt,model,flux_i
+
+
+    Mt,model,flux_i=create_model(rratio_i,rsum_i,i_0_i)
+
+
+    d1,=plt.plot(Mt/(2*pi),flux_i,"k-")
+    d2,=plt.plot(Mt/(2*pi)+1,flux_i,"k-")
+
+    l1,=plt.plot(Mt/(2*pi),model,"r-")
+    l2,=plt.plot(Mt/(2*pi)+1,model,"r-")
+    plt.xlim(0.95,1.05)
+
+    ### Begin interactive part
+
+    axi0  = plt.axes([0.25, 0.05, 0.65, 0.03])
+    axrratio = plt.axes([0.25, 0.1, 0.65, 0.03])
+    axrsum  = plt.axes([0.25, 0.15, 0.65, 0.03])
+
+    si0 = Slider(axi0, 'inc', 80.0, 90.0, valinit=i_0_i)
+    srratio = Slider(axrratio, 'rratio', 0.0, 1.0, valinit=rratio_i)
+    srsum = Slider(axrsum, 'rsum', 0.0, 0.2, valinit=rsum_i)
+
+    plt.title(str([i_0_i,rratio_i,rsum_i]))
+
+    def update(val):
+        rratio_i = srratio.val
+        rsum_i = srsum.val
+        i_0_i = si0.val
+
+        Mt,model,flux_i=create_model(rratio_i,rsum_i,i_0_i)
+
+        d1.set_ydata(flux_i)
+        d2.set_ydata(flux_i)
+        l1.set_ydata(model)
+        l2.set_ydata(model)
+        plt.title(str([i_0_i,rratio_i,rsum_i]))
+    
+
+    srratio.on_changed(update)
+    srsum.on_changed(update)
+    si0.on_changed(update)
+
+    plt.show()
