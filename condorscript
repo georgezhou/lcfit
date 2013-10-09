@@ -1,0 +1,8 @@
+Executable = wrapper.py
+output = foobar/foobar.out$(Process)
+getenv = true
+error = foobar/foobar.error$(Process)
+arguments = "cfg_folder/cfg_$(Process)"
+notify_user = george.zhou@anu.edu.au
+Notification = Always
+Queue 9

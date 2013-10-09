@@ -40,11 +40,11 @@ gconst = 6.67*10**(-11)
 
 free_t0 = functions.read_config_file("FREE_T0")
 
-mstar_master = eval(functions.read_config_file("MSTAR"))*msun
-mstar_err = eval(functions.read_config_file("MSTAR_ERR"))*msun
+mstar_master = float(functions.read_config_file("MSTAR"))*msun
+mstar_err = float(functions.read_config_file("MSTAR_ERR"))*msun
 
-rhostar_master = eval(functions.read_config_file("RHOSTAR"))
-rhostar_err = eval(functions.read_config_file("RHOSTAR_ERR"))
+rhostar_master = float(functions.read_config_file("RHOSTAR"))
+rhostar_err = float(functions.read_config_file("RHOSTAR_ERR"))
 
 mcmc_chisq_log = []
 mcmc_tested_params = []
@@ -158,7 +158,7 @@ def transitmodel(V,hjd,la,lb,cadence):
 ### dtype = 1, ldtype = [4,4]
 
 
-t0_global = floor(eval(functions.read_config_file("T0")))
+t0_global = floor(float(functions.read_config_file("T0")))
 
 tested_params = []
 chisq_log = []
@@ -464,6 +464,10 @@ def calc_probability(initial_params,default_params,free_param_names,fixed_param_
         # os.system("cat test >> mcmc_chisq_log")
 
     #print prob
+        
+    else:
+        prob = inf
+
     return prob
 
 def mcmc_loop(initial_params,default_params,free_param_names,fixed_param_names,fixed_param_values,prior_params,prior_mean,prior_std,prior_func,lc,plot_pdf,cadence):
@@ -485,9 +489,9 @@ def mcmc_loop(initial_params,default_params,free_param_names,fixed_param_names,f
 
     print "Running MCMC to sample the parameter space"
 
-    nwalkers = int(eval(functions.read_config_file("WALKERS")))
-    nmcmc = int(eval(functions.read_config_file("MCMC")))
-    nburn = int(eval(functions.read_config_file("NBURN")))
+    nwalkers = int(float(functions.read_config_file("WALKERS")))
+    nmcmc = int(float(functions.read_config_file("MCMC")))
+    nburn = int(float(functions.read_config_file("NBURN")))
     nthreads = 1
 
     param_tolerance_names = ["ecosw","esinw","period","t0","beta","planet_f","theta","edepth","phi","planet_alpha","planet_f"]
@@ -571,7 +575,7 @@ def inflate_errors(x0,free_param_names,free_param_vals,fixed_param_names,fixed_p
             ld2_coeff.append(fixed_param_vals[i])
 
 
-    t0_global = floor(eval(functions.read_config_file("T0")))
+    t0_global = floor(float(functions.read_config_file("T0")))
     t0_i = t0_i + t0_global
 
     if cadence == "short":

@@ -176,13 +176,11 @@ def wrap(lc):
     mcmc_chisq_log,mcmc_tested_params = fit_lc(lc)
     
     ### Run find_error
-    mcmc_chisq_log = loadtxt("mcmc_chisq_log")
-    mcmc_tested_params = loadtxt("mcmc_tested_params")
+    #mcmc_chisq_log = loadtxt("mcmc_chisq_log")
+    #mcmc_tested_params = loadtxt("mcmc_tested_params")
 
     xmin,xmid,xmax = find_errors.find_errors(mcmc_chisq_log,mcmc_tested_params)
     return xmin,xmid,xmax
-
-
 
 if __name__ == "__main__":
     

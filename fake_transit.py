@@ -170,8 +170,8 @@ def fake_transit(planet_f_i=0.0, planet_alpha_i=45.0, bsigma=1.*10**(-4), gsigma
 
         data = transpose([hjd_i,model,ones(len(hjd_i))])
 
-        # plt.scatter(hjd_i,model,s=0.1)
-        # plt.show()
+        #plt.scatter(hjd_i,model,s=0.1)
+        #plt.show()
 
         lc.append(data)
 

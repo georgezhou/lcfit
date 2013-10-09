@@ -122,10 +122,19 @@ def list_to_string(input_list):
 
 ### Read field in config file
 def read_config_file(field):
-    os.system("grep " + field + " config_file | awk '{print $2}' > temp")
-    field_entry = open("temp").read()
-    field_entry = string.split(field_entry)[0]
-    os.system("rm temp")
+
+    field_value = None
+    config_file = functions.read_table(read_ascii("config_file"))
+    for i in config_file:
+        if i[0] == field:
+            field_value = i[1]
+    
+    return field_value
+
+    #os.system("grep " + field + " config_file | awk '{print $2}' > temp")
+    #field_entry = open("temp").read()
+    #field_entry = string.split(field_entry)[0]
+    #os.system("rm temp")
     return field_entry
 
 ### Sort two lists according to list 1
