@@ -250,7 +250,8 @@ def lc_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_value
                 chisq_i =  sum(((flux_ii-model)/fluxerr_i)**2)
                 return chisq_i
 
-            x0 = optimize.fmin(minfunc,x0,disp=0)
+            x0 = optimize.leastsq(minfunc,x0)
+            #x0 = optimize.fmin(minfunc,x0,disp=0)
             rms = sum(((flux_i + x0[0] - model)/fluxerr_i)**2)
             return rms
 
@@ -337,7 +338,8 @@ def lc_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_value
         chisq_i =  sum(((flux_ii-model)/fluxerr_i)**2)
         return chisq_i
 
-    x0 = optimize.fmin(minfunc,x0,disp=0)
+    x0 = optimize.leastsq(minfunc,x0)
+    #x0 = optimize.fmin(minfunc,x0,disp=0)
     flux_i = flux_i + x0[0]
 
     diff = flux_i - model
@@ -616,7 +618,8 @@ def inflate_errors(x0,free_param_names,free_param_vals,fixed_param_names,fixed_p
             return NaN
 
     s0 = 1.
-    s0 = optimize.fmin(minfunc,s0,args=(flux_i,fluxerr_i,model,df))
+    s0 = optimize.leastsq(minfunc,s0,args=(flux_i,fluxerr_i,model,df))
+    #s0 = optimize.fmin(minfunc,s0,args=(flux_i,fluxerr_i,model,df))
     s0 = s0[0]
     print "inflating errors by factor of ",s0
     fluxerr_i = fluxerr_i*s0
@@ -777,7 +780,8 @@ def manual_lcfit(initial_params,free_param_names,fixed_param_names,fixed_param_v
             chisq_i =  sum(((flux_ii-model)/fluxerr_i)**2)
             return chisq_i
 
-        x0 = optimize.fmin(minfunc,x0,disp=0)
+        x0 = optimize.leastsq(minfunc,x0)
+        #x0 = optimize.fmin(minfunc,x0,disp=0)
         flux_i = flux_i + x0[0]
 
         model_i = model
