@@ -21,7 +21,7 @@ def oblateness_func(hjd,t0,period,rmean,f,alpha,sma,inc,u1,u2):
     ind = phase > 0.5
     phase[ind] -= 1.0
 
-    f = abs(f)
+    #f = abs(f)
 
     alpha = alpha * np.pi / 180.
     inc = inc * np.pi / 180.
