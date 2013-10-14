@@ -23,7 +23,8 @@ jktebop = cdll.LoadLibrary("./jktebop_lib.so")
 
 ### Compile and import oblateTransit
 os.chdir("oblateTransit")
-os.system("make")
+#os.system("make clean")
+os.system("make all")
 os.chdir("..")
 sys.path.append("oblateTransit")
 import oblateness_func

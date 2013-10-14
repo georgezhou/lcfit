@@ -6,5 +6,5 @@
 90   # inclination, in degrees
 0.076  # limb darkening coefficients, u1
 0.034  # limb darkening coefficients, u2
-500  # number of phase points in the resulting light curve
+5000  # number of phase points in the resulting light curve
 0.025  # phase interval, phi = t/T

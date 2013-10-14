@@ -1,4 +1,6 @@
 #include "oblateness.h"
+#include "time.h"
+#include "iostream"
 int main()
 {
   double variables[10];
@@ -7,6 +9,7 @@ int main()
 	double alpha, sma, period, inc, u1, u2;
 	int N, i, n=10;
 	double percent;
+  clock_t init,final;
 	FILE *fp;
 	if((fp=fopen("system_config", "r")) == NULL)
 	{
@@ -57,7 +60,11 @@ int main()
     phi[i]=-1*percent+dphi*i;
   }
 		/* functions to calculate the relative flux at this moment */
+  init= clock();
 	obl.relativeFlux(phi,N, deficitFlux, N);
+  final= clock()-init;
+  printf("total: %f\n", (double)final/(double)CLOCKS_PER_SEC);
+  //std::cout << (double)final / ((double)CLOCKS_PER_SEC);
 		//amp = circleAnalogy-deficitFlux/totalFlux;
   for(int i =0;i<N;i++){
     amp = deficitFlux[i]/totalFlux;

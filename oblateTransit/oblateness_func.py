@@ -1,7 +1,7 @@
 import numpy as np
 import scipy as sp
 from math import sqrt,cos
-import oblateness as Obl
+import oblatenessfast as Obl
 import matplotlib
 from matplotlib import pyplot as plt
 def oblateness_func(hjd,t0,period,rmean,f,alpha,sma,inc,u1,u2):

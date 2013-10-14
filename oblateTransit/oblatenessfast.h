@@ -19,7 +19,7 @@ class Oblateness{
     void IntersectionPoints_(double *x, double *y, int *n, double a, double b, double xc, double yc);
     double TriangleArea_(double *x, double *y);
     double CircleChordArea_(double *x, double *y, double xc, double yc, double rc);
-    double Req_,Rpole_,alpha_,sma_,inc_,u1_,u2_;
+    double u1_,u2_,inc_,Req_,Rpole_,alpha_,sma_;
     static const int IA=16807;
     static const int IM=2147483647;
     double AM;

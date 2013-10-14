@@ -1,7 +1,13 @@
-OBJECT = oblateness.o main.o
+OBJECT = oblatenessfast.o main.o
 PROJECT = oblateness
-SOURCES= oblateness.cc oblateness.h
-INTERFACES = oblateness.i
+OBL_INTERFACES = oblateness.i
+OBLFAST_INTERFACES = oblatenessfast.i
+ELL_INTERFACES = elliptic.i
+OBL_SOURCES= oblateness.cc oblateness.h 
+OBLFAST_SOURCES= oblatenessfast.cc oblatenessfast.h
+ELL_SOURCES = elliptic.cc elliptic.h
+SOURCES = $(OBL_SOURCES) $(ELL_SOURCES) $(OBLFAST_INTERFACES)
+INTERFACES = $(OBL_INTERFACES) $(ELL_INTERFACES) $(OBLFAST_INTERFACES)
 WRAPPERS = $(INTERFACES:.i=_wrap.cxx)
 PROXIES = $(INTERFACES:.i=.py)
 

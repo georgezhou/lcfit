@@ -1,4 +1,4 @@
-%module oblateness
+%module oblatenessfast
 %{
 #define SWIG_FILE_WITH_INIT
 %}
