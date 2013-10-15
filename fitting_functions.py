@@ -206,7 +206,7 @@ def lc_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_value
     npoints = 0
 
     rmeanrstar = rratio_i
-    rratio_i = sqrt(1-planet_f_i)*rmeanrstar
+    rratio_i = rmeanrstar*(1-planet_f_i)**0.5
 
     sma = rsum_i/(1+rmeanrstar)
     sma = 1/sma
@@ -449,8 +449,13 @@ def calc_probability(initial_params,default_params,free_param_names,fixed_param_
 
     i_0_i = i_0_i * pi / 180.
     
-    e_0_i = sqrt(ecosw_i**2+esinw_i**2)
-    w_0_i = arccos(ecosw_i/e_0_i)
+    try:
+        e_0_i = (ecosw_i**2+esinw_i**2)**(0.5)
+        w_0_i = arccos(ecosw_i/e_0_i)
+    except ZeroDivisionError:
+        e_0_i = 0
+        w_0_i = pi
+
 
     a_0_i = (rsum_i)/(1+rratio_i)
 
@@ -504,7 +509,7 @@ def mcmc_loop(initial_params,default_params,free_param_names,fixed_param_names,f
 
     param_tolerance_names = ["ecosw","esinw","period","t0","beta","planet_f","theta","edepth","phi","planet_alpha","planet_f"]
     param_tolerances = [0.0001,0.3,0.00000001,0.000001,0.1,0.001,0.1,0.3,0.1,0.5,0.5]
-    default_tolerance = 0.0001
+    default_tolerance = 0.0005
 
     chisq_log,stellar_params,tested_params= [],[],[]
 
@@ -621,8 +626,8 @@ def inflate_errors(x0,free_param_names,free_param_vals,fixed_param_names,fixed_p
             return NaN
 
     s0 = 1.
-    s0 = optimize.leastsq(minfunc,s0,args=(flux_i,fluxerr_i,model,df))
-    #s0 = optimize.fmin(minfunc,s0,args=(flux_i,fluxerr_i,model,df))
+    #s0 = optimize.leastsq(minfunc,s0,args=(flux_i,fluxerr_i,model,df))
+    s0 = optimize.fmin(minfunc,s0,args=(flux_i,fluxerr_i,model,df))
     s0 = s0[0]
     print "inflating errors by factor of ",s0
     fluxerr_i = fluxerr_i*s0
@@ -679,7 +684,7 @@ def manual_lcfit(initial_params,free_param_names,fixed_param_names,fixed_param_v
         global t0_i
 
         rmeanrstar = rratio_i
-        rratio_i = sqrt(1-planet_f_i)*rmeanrstar
+        rratio_i = rmeanrstar*(1-planet_f_i)**(0.5)
 
         sma = rsum_i/(1+rmeanrstar)
         sma = 1/sma

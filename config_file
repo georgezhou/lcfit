@@ -70,9 +70,9 @@ RHOSTAR_ERR 1.0
 
 ########## Fitting options
 
-WALKERS 2 ### Number of MCMC walkers
-NBURN 2 ### Number of burn runs
-MCMC 10 ### Number of iterations for MCMC
+WALKERS 100 ### Number of MCMC walkers
+NBURN 1000 ### Number of burn runs
+MCMC 50000 ### Number of iterations for MCMC
 
 RUN_DOWNHILL false ### Run downhill simples
 RUN_MCMC true ### Run MCMC method
