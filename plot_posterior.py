@@ -150,7 +150,7 @@ def plot_folder(ax1,ax2,pltcolor):
     binarray,xaxis,yaxis = bin2d(30,x,y,z)
 
     levels = [0.607,0.135]
-    plt.hexbin(y,x,C=z,bins=25,cmap="binary")
+    plt.hexbin(y,x,C=z,bins=25,cmap="binary",reduce_C_function=max)
     #plt.scatter(y,x,s=0.1)
     plt.contour(yaxis,xaxis,binarray,levels,colors=pltcolor)
 
@@ -177,7 +177,6 @@ plt.figure(figsize=(10,12))
 
 ### Plot lc_ld1 vs planet_f
 plt.subplot(321)
-plt.title("f=0.1, alpha=45")
 plot_folder(get_index("planet_f"),get_index("lc_ld1"),"r")
 plt.xlabel("lc_ld1")
 plt.ylabel("planet_f")
