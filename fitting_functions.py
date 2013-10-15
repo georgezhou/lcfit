@@ -274,7 +274,7 @@ def lc_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_value
     phase = (hjd_i-t0_i)/period_i
     phase = phase - floor(phase)
 
-    if min(phase) < 0.05 or max(phase)>0.95 and fratio > 0:
+    if min(phase) < 0.05 or max(phase)>0.95 and fratio_i > 0:
 
         if cadence == "short":
             obliq_model = obliquity(hjd_i,t0_i,beta_i,fratio_i,theta_i,phi_i,Protot_i,b,a,period_i,rstar,mstar)
@@ -300,19 +300,21 @@ def lc_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_value
 
 
     ### Apply planet oblation
+    try:
+        if min(phase) < 0.05 or max(phase)>0.95 and planet_f_i > 0:
+            if cadence == "short":
+                model = model - oblateness_func.oblateness_func(hjd_i,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])
 
-    if min(phase) < 0.05 or max(phase)>0.95 and planet_f_i > 0:
-        if cadence == "short":
-            model = model - oblateness_func.oblateness_func(hjd_i,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])
+            else:
+                oblate_model = []
+                for datapoint in hjd_i:
+                    datapoint = arange(datapoint-0.0104,datapoint+0.0104,0.00208)
+                    oblate_model.append(mean(oblateness_func.oblateness_func(datapoint,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])))
 
-        else:
-            oblate_model = []
-            for datapoint in hjd_i:
-                datapoint = arange(datapoint-0.0104,datapoint+0.0104,0.00208)
-                oblate_model.append(mean(oblateness_func.oblateness_func(datapoint,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])))
-
-            oblate_model = array(oblate_model)
-            model = model - oblate_model
+                oblate_model = array(oblate_model)
+                model = model - oblate_model
+    except TypeError:
+        pass
 
     #oblate_model = oblateness_func.oblateness_func(hjd_i,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])
     #plt.plot((hjd_i-t0_i)/period_i,oblate_model)
@@ -743,7 +745,7 @@ def manual_lcfit(initial_params,free_param_names,fixed_param_names,fixed_param_v
         phase = (hjd_i-t0_i)/period_i
         phase = phase - floor(phase)
 
-        if min(phase) < 0.05 or max(phase)>0.95 and fratio > 0:
+        if min(phase) < 0.05 or max(phase)>0.95 and fratio_i > 0:
 
             if cadence == "short":
                 obliq_model = obliquity(hjd_i,t0_i,beta_i,fratio_i,theta_i,phi_i,Protot_i,b,a,period_i,rstar,mstar)
