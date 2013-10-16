@@ -274,7 +274,7 @@ phase,flux,err,model = transpose(data)
 ### Plot data
 plt.clf()
 plt.subplot(211)
-plt.title("f=0.1, alpha=45")
+plt.title("f=0.05, alpha=45")
 
 plt.scatter(phase,flux,s=1,color="k")
 plt.scatter(phase+1,flux,s=1,color="k")
@@ -292,7 +292,7 @@ plt.subplot(212)
 residual = flux-model
 
 
-residual_mvavg = smooth(residual,window_len=30*(len(lclist)),window='flat')
+residual_mvavg = smooth(residual,window_len=15*(len(lclist)),window='flat')
 #residual_mvavg = smooth(residual,window_len=60,window='flat')
 
 plt.scatter(phase,residual,s=1,color="k")

@@ -248,8 +248,9 @@ def lc_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_value
             x0 = [median(flux_i)]
             def minfunc(x0):
                 flux_ii = flux_i + x0[0]
-                chisq_i =  sum(((flux_ii-model)/fluxerr_i)**2)
-                return chisq_i
+                #chisq_i =  sum(((flux_ii-model)/fluxerr_i)**2)
+                #return chisq_i
+                return (flux_i+x0[0]-model)/fluxerr_i
 
             x0 = optimize.leastsq(minfunc,x0)
             #x0 = optimize.fmin(minfunc,x0,disp=0)
@@ -338,8 +339,9 @@ def lc_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_value
     x0 = [median(flux_i)]
     def minfunc(x0):
         flux_ii = flux_i + x0[0]
-        chisq_i =  sum(((flux_ii-model)/fluxerr_i)**2)
-        return chisq_i
+        #chisq_i =  sum(((flux_ii-model)/fluxerr_i)**2)
+        #return chisq_i
+        return (flux_ii-model)/fluxerr_i
 
     x0 = optimize.leastsq(minfunc,x0)
     #x0 = optimize.fmin(minfunc,x0,disp=0)
@@ -785,9 +787,10 @@ def manual_lcfit(initial_params,free_param_names,fixed_param_names,fixed_param_v
         x0 = [median(flux_i)]
         def minfunc(x0):
             flux_ii = flux_i + x0[0]
-            chisq_i =  sum(((flux_ii-model)/fluxerr_i)**2)
-            return chisq_i
-
+            #chisq_i =  sum(((flux_ii-model)/fluxerr_i)**2)
+            #return chisq_i
+            return (flux_ii-model)/fluxerr_i
+        
         x0 = optimize.leastsq(minfunc,x0)
         #x0 = optimize.fmin(minfunc,x0,disp=0)
         flux_i = flux_i + x0[0]

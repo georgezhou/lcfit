@@ -14,7 +14,7 @@ T0_ERR 0.002
 RSUM 0.02
 RSUM_ERR 0.01
 
-RRATIO 0.1
+RRATIO 0.05
 RRATIO_ERR 0.05
 
 I0 89.5
@@ -75,6 +75,6 @@ NBURN 1000 ### Number of burn runs
 MCMC 50000 ### Number of iterations for MCMC
 
 RUN_DOWNHILL false ### Run downhill simples
-RUN_MCMC true ### Run MCMC method
+RUN_MCMC false ### Run MCMC method
 
 FREE_T0 false ### Enable for ttv systems (true/false)
