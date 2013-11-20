@@ -12,6 +12,7 @@ from ctypes import *
 from numpy import *
 import string
 import Zeipel
+import LaraRieutord
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -40,6 +41,8 @@ day = 60.*60.*24.
 gconst = 6.67*10**(-11)
 
 free_t0 = functions.read_config_file("FREE_T0")
+kipping_ld = functions.read_config_file("KIPPING_LD")
+grav_dark_form = functions.read_config_file("GRAV_DARK_FORM")
 
 mstar_master = eval(functions.read_config_file("MSTAR"))*msun
 mstar_err = eval(functions.read_config_file("MSTAR_ERR"))*msun
@@ -54,6 +57,8 @@ def calculate_rstar(mstar,rhostar):
 rstar_master = calculate_rstar(mstar_master,rhostar_master)
 
 def obliquity(t,t0,beta,fratio,theta,phi,Protot,b,a,P,Rs,Ms):
+
+    fratio = abs(fratio)
 
     phi = phi*pi/180.
 
@@ -88,8 +93,12 @@ def obliquity(t,t0,beta,fratio,theta,phi,Protot,b,a,P,Rs,Ms):
     #xp = Rsb*sqrt(abs(1-(y/Rsp)**2))
     #Reff = sqrt(xp**2+y**2)
 
-    g = Zeipel.cal_geff(x,y,fratio,phi,1.,ggraveq,groteq)
-    g0 = Zeipel.cal_geff(0,0,fratio,phi,1.,ggraveq,groteq)
+    if grav_dark_form == "Zeipel":
+        g = Zeipel.cal_geff(x,y,fratio,phi,1.,ggraveq,groteq)
+        g0 = Zeipel.cal_geff(0,0,fratio,phi,1.,ggraveq,groteq)
+    if grav_dark_form == "LaraRieutord":
+        g = LaraRieutord.cal_Lara(x,y,fratio,phi,ggraveq,groteq)
+        g0 = LaraRieutord.cal_Lara(0,0,fratio,phi,ggraveq,groteq)
 
     #g = sqrt(gconst*Ms/Reff)
     #g0 = sqrt(gconst*Ms/Rsb)
@@ -201,6 +210,11 @@ def lc_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_value
 
     if cadence == "short":
         t0_i = t0_i + tdiff_i
+
+    if kipping_ld == "true":
+        ld1_kipping,ld2_kipping = array(ld1_coeff),array(ld2_coeff)
+        ld1_coeff = 2*sqrt(ld1_kipping)*ld2_kipping
+        ld2_coeff = sqrt(ld1_kipping)*(1-2*ld2_kipping)
 
     chisq = 0
     npoints = 0
@@ -406,27 +420,24 @@ def box(x,x0,c):
     else:
         return 1.0
 
-def calc_master_chisq(initial_params,default_params,free_param_names,fixed_param_names,fixed_param_values,prior_params,prior_mean,prior_std,prior_func,lc,plot_pdf,cadence):
-    initial_params = array(initial_params)*array(default_params)+array(default_params)
+def calc_master_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_values,prior_params,prior_range,lc,plot_pdf,cadence):
     
     chisq = 0
     for n in range(len(lc)):
         lc_n = lc[n]
         chisq += lc_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_values,lc_n,plot_pdf,False,cadence[n])
 
-    for i in range(len(prior_params)):
-        for j in range(len(free_param_names)):
-            if prior_params[i] == free_param_names[j]:
-                if prior_func[i] == "b":
-                    chisq = chisq * box(initial_params[j],prior_mean[i],prior_std[i])
+    # for i in range(len(prior_params)):
+    #     for j in range(len(free_param_names)):
+    #         if prior_params[i] == free_param_names[j]:
+    #             if prior_func[i] == "b":
+    #                 chisq = chisq * box(initial_params[j],prior_mean[i],prior_std[i])
 
     #print chisq
     return chisq
 
 
-def calc_probability(initial_params,default_params,free_param_names,fixed_param_names,fixed_param_values,prior_params,prior_mean,prior_std,prior_func,lc,chisq_base,plot_pdf,cadence):
-
-    initial_params = array(initial_params)*array(default_params)+array(default_params)
+def calc_probability(initial_params,free_param_names,fixed_param_names,fixed_param_values,prior_params,prior_range,lc,chisq_base,plot_pdf,cadence):
 
     chisq = 0
     for n in range(len(lc)):
@@ -458,16 +469,14 @@ def calc_probability(initial_params,default_params,free_param_names,fixed_param_
         e_0_i = 0
         w_0_i = pi
 
-
     a_0_i = (rsum_i)/(1+rratio_i)
 
     for i in range(len(free_param_names)):
-        if prior_func[i] == "g":
-            prob = prob * gaussian(initial_params[i],prior_mean[i],prior_std[i])
-        if prior_func[i] == "b":
-            prob = prob * box(initial_params[i],prior_mean[i],prior_std[i])
-            #print prob,initial_params[i],prior_mean[i],prior_std[i]
-    
+        if initial_params[i] < prior_range[i][0] or initial_params[i] > prior_range[i][1]:
+            print free_param_names[i],initial_params[i],prior_range[i]
+            prob = NaN
+            break
+
     if functions.isnan(prob):
 
         tested_params = [list(initial_params)]
@@ -487,20 +496,17 @@ def calc_probability(initial_params,default_params,free_param_names,fixed_param_
     print prob
     return prob
 
-def mcmc_loop(initial_params,default_params,free_param_names,fixed_param_names,fixed_param_values,prior_params,prior_mean,prior_std,prior_func,lc,plot_pdf,cadence):
+def mcmc_loop(initial_params,free_param_names,fixed_param_names,fixed_param_values,prior_params,prior_range,lc,plot_pdf,cadence):
 
     import random
-
     global chisq_log,tested_params
     
     ### Run an intial round to get baseline chisq
 
-    initial_params_temp = initial_params * default_params + default_params
-
     chisq_base = 0
     for n in range(len(lc)):
         lc_n = lc[n]
-        chisq_base += lc_chisq(initial_params_temp,free_param_names,fixed_param_names,fixed_param_values,lc_n,plot_pdf,False,cadence[n])
+        chisq_base += lc_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_values,lc_n,plot_pdf,False,cadence[n])
 
     print "Running MCMC to sample the parameter space"
 
@@ -510,7 +516,7 @@ def mcmc_loop(initial_params,default_params,free_param_names,fixed_param_names,f
     nthreads = 1
 
     param_tolerance_names = ["ecosw","esinw","period","t0","beta","planet_f","theta","edepth","phi","planet_alpha","planet_f"]
-    param_tolerances = [0.0001,0.3,0.00000001,0.000001,0.1,0.001,0.1,0.3,0.1,0.5,0.5]
+    param_tolerances = [0.0001,0.3,0.00000001,0.000001,0.1,0.001,0.1,0.3,0.1,0.1,0.3]
     default_tolerance = 0.0005
 
     chisq_log,stellar_params,tested_params= [],[],[]
@@ -527,10 +533,10 @@ def mcmc_loop(initial_params,default_params,free_param_names,fixed_param_names,f
                     if param_tolerance_names[k] == free_param_names[j]:
                         tolerance = param_tolerances[k]
                         break
-            pi.append(random.gauss(initial_params[j],tolerance))
+            pi.append(random.gauss(initial_params[j],tolerance*(max(prior_range[j])-min(prior_range[j]))))
         p0.append(pi)
 
-    sampler = emcee.EnsembleSampler(nwalkers, ndim, calc_probability, args=[default_params,free_param_names,fixed_param_names,fixed_param_values,prior_params,prior_mean,prior_std,prior_func,lc,chisq_base,plot_pdf,cadence],threads=nthreads)
+    sampler = emcee.EnsembleSampler(nwalkers, ndim, calc_probability, args=[free_param_names,fixed_param_names,fixed_param_values,prior_params,prior_range,lc,chisq_base,plot_pdf,cadence],threads=nthreads)
 
     pos, prob, state = sampler.run_mcmc(p0, nburn)
     sampler.reset()
@@ -595,6 +601,13 @@ def inflate_errors(x0,free_param_names,free_param_vals,fixed_param_names,fixed_p
 
     if cadence == "short":
         t0_i = t0_i + tdiff_i
+
+
+    if kipping_ld == "true":
+        ld1_kipping,ld2_kipping = array(ld1_coeff),array(ld2_coeff)
+        ld1_coeff = 2*sqrt(ld1_kipping)*ld2_kipping
+        ld2_coeff = sqrt(ld1_kipping)*(1-2*ld2_kipping)
+
 
     #### Calculate error inflation
     hjd_i,flux_i,fluxerr_i = lc[:,0],lc[:,1],lc[:,2]
@@ -681,6 +694,13 @@ def manual_lcfit(initial_params,free_param_names,fixed_param_names,fixed_param_v
 
     if cadence == "short":
         t0_i = t0_i + tdiff_i
+
+
+    if kipping_ld == "true":
+        ld1_kipping,ld2_kipping = array(ld1_coeff),array(ld2_coeff)
+        ld1_coeff = 2*sqrt(ld1_kipping)*ld2_kipping
+        ld2_coeff = sqrt(ld1_kipping)*(1-2*ld2_kipping)
+
 
     def create_model(rratio_i,rsum_i,i_0_i):
         global t0_i

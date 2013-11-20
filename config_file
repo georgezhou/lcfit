@@ -1,24 +1,24 @@
 INPUT_LC_LIST lclist.txt
 
-LC_LD1 [0.25]
-LC_LD1_ERR [0.5]
-LC_LD2 [0.3]
-LC_LD2_ERR [0.5]
+LC_LD1 [0.5]
+LC_LD1_ERR [[0,1]]
+LC_LD2 [0.5]
+LC_LD2_ERR [[0,1]]
 
 PERIOD 100.
 PERIOD_ERR 0
 
 T0 0.5
-T0_ERR 0.002
+T0_ERR [0.498,0.502]
 
 RSUM 0.02
-RSUM_ERR 0.01
+RSUM_ERR [0.0,0.04]
 
-RRATIO 0.05
-RRATIO_ERR 0.05
+RRATIO 0.1
+RRATIO_ERR [0.05,0.15]
 
 I0 89.5
-I0_ERR 0.5
+I0_ERR [89,90]
 
 #### Secondary eclipse parameters
 
@@ -37,7 +37,7 @@ BETA 0.0
 BETA_ERR 0.0
 
 FRATIO 0.0
-FRATIO_ERR 0.0
+FRATIO_ERR 0
 
 THETA 0.0001 ### Orbit obliquity
 THETA_ERR 0
@@ -51,10 +51,10 @@ ROTP_ERR 0
 ### Planet oblateness parameters
 
 PLANET_F 0.1
-PLANET_F_ERR 0.2
+PLANET_F_ERR [-0.1,0.3]
 
 PLANET_ALPHA 45.
-PLANET_ALPHA_ERR 50.
+PLANET_ALPHA_ERR [-5,95]
 
 ### Fudge parameter to align long and short cadence t0
 
@@ -74,7 +74,9 @@ WALKERS 100 ### Number of MCMC walkers
 NBURN 1000 ### Number of burn runs
 MCMC 50000 ### Number of iterations for MCMC
 
-RUN_DOWNHILL false ### Run downhill simples
-RUN_MCMC false ### Run MCMC method
+RUN_MCMC true ### run MCMC
 
 FREE_T0 false ### Enable for ttv systems (true/false)
+KIPPING_LD true ### Use the Kipping 2013 LD vectors (true/false)
+GRAV_DARK_FORM Zeipel ### Choose which gravity darkening formulation to use (Zeipel/LaraRieutord)
+

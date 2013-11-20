@@ -123,11 +123,16 @@ def bin2d(nbins,xlist,ylist,zlist,createaxis=True,xaxis=0,yaxis=0):
         zarray.append(i_array)
 
     zarray = array(zarray)
+    normfactor = zarray.max()
     zarray = zarray / zarray.max()
 
     xaxis = xaxis + 0.5*xstep
     yaxis = yaxis + 0.5*ystep
-    return zarray,xaxis,yaxis
+    return zarray,xaxis,yaxis,normfactor
+
+def find_max(input_array):
+    input_array = sort(input_array)[-20:]
+    return mean(input_array)
 
 
 ### Copy the output files
@@ -147,11 +152,11 @@ def plot_folder(ax1,ax2,pltcolor):
     y = folder_params[ax2][:nlen]
     z = folder_prob[:nlen]
 
-    binarray,xaxis,yaxis = bin2d(25,x,y,z)
+    binarray,xaxis,yaxis,normfactor = bin2d(25,x,y,z)
 
     levels = [0.607,0.135]
-    #plt.hexbin(y,x,C=log10(z),gridsize=100,cmap="binary",reduce_C_function=max)
-    plt.hexbin(y,x,C=z,gridsize=100,cmap="binary",reduce_C_function=max)
+    #plt.hexbin(y,x,C=log(z),gridsize=100,cmap="binary",reduce_C_function=max)
+    plt.hexbin(y,x,C=z/normfactor,gridsize=50,cmap="binary",reduce_C_function=find_max,vmax=0.1)
     
     #plt.scatter(y,x,s=0.1)
     plt.contour(yaxis,xaxis,binarray,levels,colors=pltcolor)
@@ -177,7 +182,7 @@ plt.figure(figsize=(12,10))
 
 ### Plot lc_ld1 vs planet_f
 plt.subplot(321)
-plt.title("f=0.1, alpha=45")
+#plt.title("f=0.1, alpha=45")
 plot_folder(get_index("planet_f"),get_index("lc_ld1"),"r")
 plt.xlabel("lc_ld1")
 plt.ylabel("planet_f")
