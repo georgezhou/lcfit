@@ -9,7 +9,7 @@ PERIOD 100.
 PERIOD_ERR 0
 
 T0 0.5
-T0_ERR [0.498,0.502]
+T0_ERR [0.498,0.502] ###!!! Here, put t_0 - floor(t_0). eg. if t_0 is 110.5, put [0.4,0.6] instead of [110.4,110.6]
 
 RSUM 0.02
 RSUM_ERR [0.0,0.04]
