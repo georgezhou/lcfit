@@ -38,68 +38,67 @@ for i in range(len(lc_ld1)):
 
 temp_param_names.append("period")
 temp_param_vals.append(float(functions.read_config_file("PERIOD")))
-temp_param_range.append(float(functions.read_config_file("PERIOD_ERR")))
+temp_param_range.append(eval(functions.read_config_file("PERIOD_ERR")))
 
 temp_param_names.append("t0")
 temp_param_vals.append(float(functions.read_config_file("T0"))-floor(float(functions.read_config_file("T0"))))
-temp_param_range.append(float(functions.read_config_file("T0_ERR")))
+temp_param_range.append(eval(functions.read_config_file("T0_ERR")))
 
 temp_param_names.append("rsum")
 temp_param_vals.append(float(functions.read_config_file("RSUM")))
-temp_param_range.append(float(functions.read_config_file("RSUM_ERR")))
+temp_param_range.append(eval(functions.read_config_file("RSUM_ERR")))
 
 temp_param_names.append("rratio")
 temp_param_vals.append(float(functions.read_config_file("RRATIO")))
-temp_param_range.append(float(functions.read_config_file("RRATIO_ERR")))
+temp_param_range.append(eval(functions.read_config_file("RRATIO_ERR")))
 
 temp_param_names.append("i_0")
 temp_param_vals.append(float(functions.read_config_file("I0")))
-temp_param_range.append(float(functions.read_config_file("I0_ERR")))
+temp_param_range.append(eval(functions.read_config_file("I0_ERR")))
 
 temp_param_names.append("ecosw")
 temp_param_vals.append(float(functions.read_config_file("ECOSW")))
-temp_param_range.append(float(functions.read_config_file("ECOSW_ERR")))
+temp_param_range.append(eval(functions.read_config_file("ECOSW_ERR")))
 
 temp_param_names.append("esinw")
 temp_param_vals.append(float(functions.read_config_file("ESINW")))
-temp_param_range.append(float(functions.read_config_file("ESINW_ERR")))
+temp_param_range.append(eval(functions.read_config_file("ESINW_ERR")))
 
 temp_param_names.append("edepth")
 temp_param_vals.append(float(functions.read_config_file("EDEPTH")))
-temp_param_range.append(float(functions.read_config_file("EDEPTH_ERR")))
+temp_param_range.append(eval(functions.read_config_file("EDEPTH_ERR")))
 
 temp_param_names.append("beta")
 temp_param_vals.append(float(functions.read_config_file("BETA")))
-temp_param_range.append(float(functions.read_config_file("BETA_ERR")))
+temp_param_range.append(eval(functions.read_config_file("BETA_ERR")))
 
 temp_param_names.append("fratio")
 temp_param_vals.append(float(functions.read_config_file("FRATIO")))
-temp_param_range.append(float(functions.read_config_file("FRATIO_ERR")))
+temp_param_range.append(eval(functions.read_config_file("FRATIO_ERR")))
 
 temp_param_names.append("theta")
 temp_param_vals.append(float(functions.read_config_file("THETA")))
-temp_param_range.append(float(functions.read_config_file("THETA_ERR")))
+temp_param_range.append(eval(functions.read_config_file("THETA_ERR")))
 
 temp_param_names.append("phi")
 temp_param_vals.append(float(functions.read_config_file("PHI")))
-temp_param_range.append(float(functions.read_config_file("PHI_ERR")))
+temp_param_range.append(eval(functions.read_config_file("PHI_ERR")))
 
 temp_param_names.append("Protot")
 temp_param_vals.append(float(functions.read_config_file("ROTP")))
-temp_param_range.append(float(functions.read_config_file("ROTP_ERR")))
+temp_param_range.append(eval(functions.read_config_file("ROTP_ERR")))
 
 temp_param_names.append("planet_f")
 temp_param_vals.append(float(functions.read_config_file("PLANET_F")))
-temp_param_range.append(float(functions.read_config_file("PLANET_F_ERR")))
+temp_param_range.append(eval(functions.read_config_file("PLANET_F_ERR")))
 
 temp_param_names.append("planet_alpha")
 temp_param_vals.append(float(functions.read_config_file("PLANET_ALPHA")))
-temp_param_range.append(float(functions.read_config_file("PLANET_ALPHA_ERR")))
-
+temp_param_range.append(eval(functions.read_config_file("PLANET_ALPHA_ERR")))
 
 temp_param_names.append("tdiff")
 temp_param_vals.append(float(functions.read_config_file("TDIFF")))
-temp_param_range.append(float(functions.read_config_file("TDIFF_ERR")))
+temp_param_range.append(eval(functions.read_config_file("TDIFF_ERR")))
 
 
 ### Distribute as free or fixed param, including associated brackets
