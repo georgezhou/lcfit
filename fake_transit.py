@@ -23,7 +23,7 @@ period_i = 100.0
 t0_i = 0.5
 rsum_i = 0.02
 rratio_i = 0.1
-i_0_i = 89.5
+i_0_i = 90.0
 ecosw_i = 0.0
 esinw_i = 0.0
 edepth_i = 0.0
@@ -38,10 +38,10 @@ planet_alpha_i = 0.0
 mstar = 1.0*msun
 rstar = 1.0*rsun
 
-
 cadence = "short"
-hjd_i = arange(t0_i-0.6,t0_i+0.6,1.0/(24.*60.))
 
+rsum_const = rsum_i
+rratio_const = rratio_i
 
 
 #################################
@@ -77,8 +77,11 @@ def gaussian(input_array,mu,sigma):
         o[i] = random.gauss(mu,sigma)
     return o
 
-def make_model():
+def make_model(hjd_i):
     global ld1_coeff,ld2_coeff,period_i,t0_i,rsum_i,rratio_i,i_0_i,ecosw_i,esinw_i,edepth_i,beta_i,fratio_i,theta_i,phi_i,Protot_i,planet_f_i,planet_alpha_i
+
+    rsum_i = rsum_const
+    rratio_i = rratio_const
 
     rmeanrstar = rratio_i
     rratio_i = sqrt(1-planet_f_i)*rmeanrstar
@@ -127,7 +130,7 @@ def make_model():
         else:
             obliq_model = []
             for datapoint in hjd_i:
-                datapoint = arange(datapoint-0.0104,datapoint+0.0104,0.00208)
+                datapoint = arange(datapoint-0.0104,datapoint+0.0104,0.000208)
                 #datapoint = arange(datapoint-0.0104,datapoint+0.0104,0.0005)
 
                 obliq_model.append(mean(obliquity(datapoint,t0_i,beta_i,fratio_i,theta_i,phi_i,Protot_i,b,a,period_i,rstar,mstar)))
@@ -143,27 +146,69 @@ def make_model():
 
 
     ### Apply planet oblation
+    try:
+        if (min(phase) < 0.05 or max(phase)>0.95) and planet_f_i > 0:
+            if cadence == "short":
+                model = model - oblateness_func.oblateness_func(hjd_i,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])
 
-    model = model - oblateness_func.oblateness_func(hjd_i,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])
+            else:
+
+                nminute_average = 1.
+
+                hjd_sc = arange(min(hjd_i),max(hjd_i),nminute_average/(60.*24.))
+                oblate_model_sc = oblateness_func.oblateness_func(hjd_sc,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])
+
+                oblate_model = zeros(len(hjd_i))
+
+                for n in range(len(hjd_i)):
+                    mask = hjd_sc >= hjd_i[n]-0.0104
+                    mask *= hjd_sc <= hjd_i[n]+0.0104
+
+                    oblate_model[n] = mean(oblate_model_sc[mask])
+
+
+                # oblate_model = []
+                # for datapoint in hjd_i:
+                #     datapoint = arange(datapoint-0.0104,datapoint+0.0104,0.000208)
+                #     oblate_model.append(mean(oblateness_func.oblateness_func(datapoint,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])))
+
+                # oblate_model = array(oblate_model)
+
+                model = model - oblate_model
+    except TypeError:
+        pass
+
+    #model = model - oblateness_func.oblateness_func(hjd_i,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])
 
     return model
 
     
-model = make_model()
+for n in arange(1,2):
 
-bnoise = brownian(0., hjd_i, 0.5*10.**(-4))
-gnoise = gaussian(hjd_i,0.,1*10.**(-4))
-
-#model = model + bnoise + gnoise
-
-model += gnoise
-
-data = transpose([hjd_i,model,ones(len(hjd_i))])
-
-o = open("data/transitgauss_"+str(planet_f_i)+"_"+str(planet_alpha_i),"w")
-functions.write_table(data,o)
-o.close()
+    starting_pos = random.gauss(0.6,0.1)
 
 
-plt.scatter(hjd_i,model,s=0.1)
-plt.show()
+    if cadence == "short":
+        hjd_i = arange(t0_i-1*starting_pos,t0_i+starting_pos,1.0/(24.*60.))
+    if cadence == "long":
+        hjd_i = arange(t0_i-1*starting_pos,t0_i+starting_pos,30.0/(24.*60.))
+        #hjd_i = arange(t0_i-starting_pos,t0_i+starting_pos,1.0/(24.*60.))
+
+    model = make_model(hjd_i)
+
+    #bnoise = brownian(0., hjd_i, 0.5*10.**(-4))
+    gnoise = gaussian(hjd_i,0.,1*10.**(-4))
+
+    #model = model + bnoise + gnoise
+
+    model += gnoise
+
+    data = transpose([hjd_i,model,ones(len(hjd_i))])
+
+    o = open("data/transit_"+str(n)+"_"+str(planet_f_i)+"_"+str(planet_alpha_i),"w")
+    functions.write_table(data,o)
+    o.close()
+
+
+    plt.scatter(hjd_i,model,s=0.1)
+    plt.show()

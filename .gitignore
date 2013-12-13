@@ -1,3 +1,4 @@
 best_param_mcmc
 mcmc_chisq_log
 mcmc_tested_params
+test_compare_lcs.py

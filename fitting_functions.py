@@ -119,49 +119,53 @@ def obliquity(t,t0,beta,fratio,theta,phi,Protot,b,a,P,Rs,Ms):
         
     return F
 
+if functions.read_config_file("USE_MANDEL_AGOL") == "true":
 
-def transitmodel(V,hjd,la,lb,cadence):
+    from transitmodel import transitmodel
 
-    ldtype = array([4,4])
-    dtype = c_long(1)
-    la = c_double(la)
-    lb = c_double(lb)
-    
-    mag = []
-    for i in hjd:
+else:
+    def transitmodel(V,hjd,la,lb,cadence):
 
-        if cadence == "short":
+        ldtype = array([4,4])
+        dtype = c_long(1)
+        la = c_double(la)
+        lb = c_double(lb)
 
-            f = c_double(0.0)
-            i = c_double(i)
-        
-            jktebop.getmodel_(V.ctypes.data_as(POINTER(c_double)),ldtype.ctypes.data_as(POINTER(c_long)),byref(i),byref(dtype),byref(la),byref(lb),byref(f))
+        mag = []
+        for i in hjd:
 
-            mag.append(ctypeslib.as_array(f)[0])
-
-        if cadence == "long":
-            i_avg = []
-
-            for j in arange(i-0.0104,i+0.0104,0.00208):
-            #for j in arange(i-0.0104,i+0.0104,0.001):
+            if cadence == "short":
 
                 f = c_double(0.0)
-                j = c_double(j)
-        
-                jktebop.getmodel_(V.ctypes.data_as(POINTER(c_double)),ldtype.ctypes.data_as(POINTER(c_long)),byref(j),byref(dtype),byref(la),byref(lb),byref(f))
+                i = c_double(i)
 
-                i_avg.append(ctypeslib.as_array(f)[0])
-            mag.append(mean(i_avg))
+                jktebop.getmodel_(V.ctypes.data_as(POINTER(c_double)),ldtype.ctypes.data_as(POINTER(c_long)),byref(i),byref(dtype),byref(la),byref(lb),byref(f))
 
-    mag = array(mag)
+                mag.append(ctypeslib.as_array(f)[0])
 
-    flux = 10**(mag/-2.5)
+            if cadence == "long":
+                i_avg = []
 
-    return flux
+                for j in arange(i-0.0104,i+0.0104,0.000208):
+                #for j in arange(i-0.0104,i+0.0104,0.001):
 
-### Syntax for transit model
-### transitmodel(V.ctypes.data_as(POINTER(c_double)),ldtype.ctypes.data_as(POINTER(c_long)),byref(phase),byref(dtype),byref(la),byref(lb),byref(flux))
-### dtype = 1, ldtype = [4,4]
+                    f = c_double(0.0)
+                    j = c_double(j)
+
+                    jktebop.getmodel_(V.ctypes.data_as(POINTER(c_double)),ldtype.ctypes.data_as(POINTER(c_long)),byref(j),byref(dtype),byref(la),byref(lb),byref(f))
+
+                    i_avg.append(ctypeslib.as_array(f)[0])
+                mag.append(mean(i_avg))
+
+        mag = array(mag)
+
+        flux = 10**(mag/-2.5)
+
+        return flux
+
+        ### Syntax for transit model
+        ### transitmodel(V.ctypes.data_as(POINTER(c_double)),ldtype.ctypes.data_as(POINTER(c_long)),byref(phase),byref(dtype),byref(la),byref(lb),byref(flux))
+        ### dtype = 1, ldtype = [4,4]
 
 
 t0_global = floor(eval(functions.read_config_file("T0")))
@@ -289,7 +293,7 @@ def lc_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_value
     phase = (hjd_i-t0_i)/period_i
     phase = phase - floor(phase)
 
-    if min(phase) < 0.05 or max(phase)>0.95 and fratio_i > 0:
+    if (min(phase) < 0.05 or max(phase)>0.95) and fratio_i > 0:
 
         if cadence == "short":
             obliq_model = obliquity(hjd_i,t0_i,beta_i,fratio_i,theta_i,phi_i,Protot_i,b,a,period_i,rstar,mstar)
@@ -316,17 +320,33 @@ def lc_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_value
 
     ### Apply planet oblation
     try:
-        if min(phase) < 0.05 or max(phase)>0.95 and planet_f_i > 0:
+        if (min(phase) < 0.05 or max(phase)>0.95) and planet_f_i > 0:
             if cadence == "short":
                 model = model - oblateness_func.oblateness_func(hjd_i,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])
 
             else:
-                oblate_model = []
-                for datapoint in hjd_i:
-                    datapoint = arange(datapoint-0.0104,datapoint+0.0104,0.00208)
-                    oblate_model.append(mean(oblateness_func.oblateness_func(datapoint,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])))
 
-                oblate_model = array(oblate_model)
+                nminute_average = 1.
+
+                hjd_sc = arange(min(hjd_i),max(hjd_i),nminute_average/(60.*24.))
+                oblate_model_sc = oblateness_func.oblateness_func(hjd_sc,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])
+
+                oblate_model = zeros(len(hjd_i))
+
+                for n in range(len(hjd_i)):
+                    mask = hjd_sc >= hjd_i[n]-0.0104
+                    mask *= hjd_sc <= hjd_i[n]+0.0104
+
+                    oblate_model[n] = mean(oblate_model_sc[mask])
+
+
+                # oblate_model = []
+                # for datapoint in hjd_i:
+                #     datapoint = arange(datapoint-0.0104,datapoint+0.0104,0.00208)
+                #     oblate_model.append(mean(oblateness_func.oblateness_func(datapoint,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])))
+
+                # oblate_model = array(oblate_model)
+
                 model = model - oblate_model
     except TypeError:
         pass
@@ -772,7 +792,7 @@ def manual_lcfit(initial_params,free_param_names,fixed_param_names,fixed_param_v
         phase = (hjd_i-t0_i)/period_i
         phase = phase - floor(phase)
 
-        if min(phase) < 0.05 or max(phase)>0.95 and fratio_i > 0:
+        if (min(phase) < 0.05 or max(phase)>0.95) and fratio_i > 0:
 
             if cadence == "short":
                 obliq_model = obliquity(hjd_i,t0_i,beta_i,fratio_i,theta_i,phi_i,Protot_i,b,a,period_i,rstar,mstar)
@@ -790,7 +810,7 @@ def manual_lcfit(initial_params,free_param_names,fixed_param_names,fixed_param_v
 
         ### Apply planet oblation
 
-        if min(phase) < 0.05 or max(phase)>0.95 and planet_f_i > 0:
+        if (min(phase) < 0.05 or max(phase)>0.95) and planet_f_i > 0:
             if cadence == "short":
                 model = model - oblateness_func.oblateness_func(hjd_i,t0_i,period_i,rmeanrstar,planet_f_i,planet_alpha_i,sma,i_0_i,ld1_coeff[0],ld2_coeff[0])
 

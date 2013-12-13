@@ -1,24 +1,24 @@
 INPUT_LC_LIST lclist.txt
 
-LC_LD1 [0.5]
+LC_LD1 [0.3]
 LC_LD1_ERR [[0,1]]
-LC_LD2 [0.5]
+LC_LD2 [0.22]
 LC_LD2_ERR [[0,1]]
 
-PERIOD 100.
+PERIOD 20.
 PERIOD_ERR 0
 
 T0 0.5
 T0_ERR [0.498,0.502] ###!!! Here, put t_0 - floor(t_0). eg. if t_0 is 110.5, put [0.4,0.6] instead of [110.4,110.6]
 
-RSUM 0.02
+RSUM 0.03
 RSUM_ERR [0.0,0.04]
 
 RRATIO 0.1
 RRATIO_ERR [0.05,0.15]
 
 I0 89.5
-I0_ERR [89,90]
+I0_ERR [89.5,90.5]
 
 #### Secondary eclipse parameters
 
@@ -53,8 +53,8 @@ ROTP_ERR 0
 PLANET_F 0.1
 PLANET_F_ERR [-0.1,0.3]
 
-PLANET_ALPHA 45.
-PLANET_ALPHA_ERR [-5,95]
+PLANET_ALPHA 0.0
+PLANET_ALPHA_ERR [-95,95]
 
 ### Fudge parameter to align long and short cadence t0
 
@@ -70,13 +70,14 @@ RHOSTAR_ERR 1.0
 
 ########## Fitting options
 
-WALKERS 100 ### Number of MCMC walkers
+WALKERS 200 ### Number of MCMC walkers
 NBURN 1000 ### Number of burn runs
-MCMC 50000 ### Number of iterations for MCMC
+MCMC 150000 ### Number of iterations for MCMC
 
 RUN_MCMC true ### run MCMC
 
 FREE_T0 false ### Enable for ttv systems (true/false)
 KIPPING_LD true ### Use the Kipping 2013 LD vectors (true/false)
 GRAV_DARK_FORM Zeipel ### Choose which gravity darkening formulation to use (Zeipel/LaraRieutord)
+USE_MANDEL_AGOL true ### Use Mandel Agol or use EBOP (EBOP has artefacts!) (true/false)
 
