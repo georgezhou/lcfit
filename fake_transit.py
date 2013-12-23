@@ -17,13 +17,13 @@ day = 60.*60.*24.
 gconst = 6.67*10**(-11)
 
 ### Model parameters
-ld1_coeff = [0.25]
-ld2_coeff = [0.30]
-period_i = 100.0
+ld1_coeff = [0.2]
+ld2_coeff = [0.3]
+period_i = 20.0
 t0_i = 0.5
-rsum_i = 0.02
+rsum_i = 0.03
 rratio_i = 0.1
-i_0_i = 90.0
+i_0_i = 89.5
 ecosw_i = 0.0
 esinw_i = 0.0
 edepth_i = 0.0
@@ -32,13 +32,13 @@ fratio_i = 0.0
 theta_i = 0.0001
 phi_i = 0.0
 Protot_i = 100000.
-planet_f_i = 0.0
-planet_alpha_i = 0.0
+planet_f_i = 0.1
+planet_alpha_i = 45.
 
 mstar = 1.0*msun
 rstar = 1.0*rsun
 
-cadence = "short"
+cadence = "long"
 
 rsum_const = rsum_i
 rratio_const = rratio_i
@@ -123,7 +123,7 @@ def make_model(hjd_i):
     phase = (hjd_i-t0_i)/period_i
     phase = phase - floor(phase)
 
-    if min(phase) < 0.05 or max(phase)>0.95:
+    if (min(phase) < 0.05 or max(phase)>0.95) and fratio_i > 0:
 
         if cadence == "short":
             obliq_model = obliquity(hjd_i,t0_i,beta_i,fratio_i,theta_i,phi_i,Protot_i,b,a,period_i,rstar,mstar)
@@ -183,7 +183,7 @@ def make_model(hjd_i):
     return model
 
     
-for n in arange(1,2):
+for n in arange(1,20):
 
     starting_pos = random.gauss(0.6,0.1)
 
@@ -205,10 +205,10 @@ for n in arange(1,2):
 
     data = transpose([hjd_i,model,ones(len(hjd_i))])
 
-    o = open("data/transit_"+str(n)+"_"+str(planet_f_i)+"_"+str(planet_alpha_i),"w")
+    o = open("data/transit_lc_"+str(n)+"_"+str(planet_f_i)+"_"+str(planet_alpha_i),"w")
     functions.write_table(data,o)
     o.close()
 
 
-    plt.scatter(hjd_i,model,s=0.1)
-    plt.show()
+    # plt.scatter(hjd_i,model,s=0.1)
+    # plt.show()

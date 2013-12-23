@@ -59,8 +59,9 @@ void Elliptic::Ellpic_bulirsch(double *n, int ln, double *k, int lk, double *nk,
   for (int i = 0; i<ln; i++){
     kc[i]=sqrt(1.-pow(k[i],2)); 
     if(n[i]+1<0) {
-      std::cout << 'Negative p' << std::endl;
-      exit(1);
+      //std::cout << 'Negative p' << std::endl;
+      //return 1;
+      continue;
     } else {
       p[i] = sqrt(n[i]+1);
       d[i] = 1./p[i];

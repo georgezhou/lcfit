@@ -3070,7 +3070,6 @@ namespace swig {
 #include <numpy/arrayobject.h>
 
 
-#include <iostream.h>
 #include "elliptic.h"
 
 

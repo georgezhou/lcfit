@@ -1,7 +1,7 @@
 #ifndef ELLIPTIC_H_
 #define ELLIPTIC_H_
 #include <math.h>
-#include <iostream>
+
 class Elliptic{
   public:
     Elliptic();

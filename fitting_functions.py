@@ -347,6 +347,8 @@ def lc_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_value
 
                 # oblate_model = array(oblate_model)
 
+
+
                 model = model - oblate_model
     except TypeError:
         pass
@@ -366,7 +368,7 @@ def lc_chisq(initial_params,free_param_names,fixed_param_names,fixed_param_value
     # plt.plot(hjd_i,model-circ_model)
     # plt.show()
 
-    # sys.exit()
+    #sys.exit()
 
 
     ### Apply offset
